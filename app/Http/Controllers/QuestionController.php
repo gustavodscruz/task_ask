@@ -75,7 +75,10 @@ class QuestionController extends Controller
     {
         $id = $request['id'];
         $editQuestion = Question::findOrFail($id);
-        return $request['question'];
+        $editQuestion->question = $request['question'];
+        $editQuestion->save();
+
+        return redirect('/questions')->with('success', 'Question edited succesfully');
     }
 
     /**
@@ -83,6 +86,7 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question)
     {
-        //
+        $question->delete();
+        
     }
 }

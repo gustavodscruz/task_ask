@@ -112,14 +112,20 @@ function updateAnswers() {
 
 const editQuestionModal = ref(false);
 const questionForEdit = ref(null);
-function editQuestion(index){
+function editQuestion(index) {
     questionForEdit.value = props.questions[index];
 }
-function updateQuestion(){
+function updateQuestion() {
     router.put('/questions', {
         question: questionForEdit.value,
     })
 
+}
+function deleteQuestions(id) {
+    router.on('before', () => {
+        return confirm('You are about to delete a record, are you sure?');
+    });
+    router.delete('/questions/' + id)
 }
 
 </script>
@@ -141,8 +147,9 @@ function updateQuestion(){
                     <td>{{ question.question }}</td>
                     <td>
                         <button @click="viewQuestion(index)" class="btn btn-primary">View</button>
-                        <button @click="editQuestionModal = true, editQuestionModal(index)" class="btn btn-success">Edit</button>
-                        <button class="btn btn-danger">Delete</button>
+                        <button @click="editQuestionModal = true, editQuestionModal(index)"
+                            class="btn btn-success">Edit</button>
+                        <button @click="deleteQuestions(question.id)" class="btn btn-danger">Delete</button>
                     </td>
                     <td>@mdo</td>
                 </tr>
@@ -229,12 +236,12 @@ function updateQuestion(){
                 <template #body>
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">Question</label>
-                        <input v-model="questionForEdit.question" type="email" class="form-control" id="exampleFormControlInput1"
-                            placeholder="name@example.com">
+                        <input v-model="questionForEdit.question" type="email" class="form-control"
+                            id="exampleFormControlInput1" placeholder="name@example.com">
                     </div>
                 </template>
                 <template #footer>
-                    <button @click="editQuestionModal=false" class="btn btn-danger">Close</button>
+                    <button @click="editQuestionModal = false" class="btn btn-danger">Close</button>
                     <button @click="updateQuestion" class="btn btn-success">Update</button>
                 </template>
             </NewQuestionModal>
