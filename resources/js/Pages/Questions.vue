@@ -11,6 +11,8 @@ const showNewQuestionModal = ref(false);
 const showViewQuestionModal = ref(false);
 const createdQuestion = ref(null);
 const newAnswers = ref([]);
+const answers = ref(null);
+const selectedQuestion = ref(null);
 const selectedanswer = ref(null);
 
 let answerId = 1;
@@ -21,6 +23,7 @@ function createQuestion() {
 
 function destroyModal() {
     showNewQuestionModal.value = false;
+    showViewQuestionModal.value = false;
 }
 
 function addNewAnswer() {
@@ -84,7 +87,21 @@ const props = defineProps({
 })
 
 function viewQuestion(index) {
-    router.push(`/questions/${index}`);
+    showViewQuestionModal.value = true;
+    selectedQuestion.value = props.questions[index];
+    answers.value = props.questions[index].answers;
+}
+
+const selectedEditAnswer = ref(null);
+function editAnswer(Id) {
+    selectedEditAnswer.value = Id;
+    answers.value.forEach((answer) => {
+        if (answer.id === Id) {
+            answer.correct_answer = 1;
+        } else {
+            answer.correct_answer = 0;
+        }
+    })
 }
 
 </script>
@@ -102,8 +119,8 @@ function viewQuestion(index) {
             </thead>
             <tbody>
                 <tr v-for="(question, index) in questions">
-                    <th scope="row">{{ index+1 }}</th>
-                    <td>{{question.question}}</td>
+                    <th scope="row">{{ index + 1 }}</th>
+                    <td>{{ question.question }}</td>
                     <td>
                         <button @click="viewQuestion(index)" class="btn btn-primary">View</button>
                         <button class="btn btn-success">Edit</button>
@@ -155,8 +172,33 @@ function viewQuestion(index) {
                         <h3>+</h3>
                     </span>
                     <button @click="destroyModal" class="btn btn-danger">Close</button>
-                <button @click="submitQuestion" v-if="newAnswers.length>3" class="btn btn-success">Submit</button>
-            </template>
-        </NewQuestionModal>
-    </Teleport>
-</Layout></template>
+                    <button @click="submitQuestion" v-if="newAnswers.length > 3" class="btn btn-success">Submit</button>
+                </template>
+            </NewQuestionModal>
+            <NewQuestionModal :show="showViewQuestionModal" @close="destroyModal">
+                <template #header>
+                    <h3>View Question/Answers</h3>
+                </template>
+                <template #body>
+                    <p><strong>Q.{{ selectedQuestion.questions }}</strong></p>
+                    <table class="table">
+                    <tbody>
+                        <tr v-for="(answer, index) in answers">
+                            <th scope="row">{{ index+1 }}</th>
+                            <td><input type="text" v-model="answer.answer" class="form-control" id="answer"
+                                    placeholder="Enter answer"></td>
+                            <td><input :checked="answer.correct_answer === 1" class="form-check-input" :value="answer.id"
+                                    @change="handleRadioToggle(answer.id)" type="radio"></td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </template>
+                <template #footer>
+                    <button @click="destroyModal" class="btn btn-danger">Close</button>
+                    <button class="btn btn-success">Save</button>
+                </template>
+            </NewQuestionModal>
+
+        </Teleport>
+    </Layout>
+</template>
