@@ -2,6 +2,7 @@
 import Layout from '@/Shared/Layout.vue'
 import NewQuestionModal from './NewQuestionModal.vue';
 import { ref } from 'vue';
+import { router } from '@inertiajs/core';
 const showNewQuestionModal = ref(false);
 const createdQuestion=ref(null);
 const newAnswers = ref([]);
@@ -35,6 +36,37 @@ function handleRadioToggle(Id){
             answer.correct_answer = 0;
         }
     })  
+}
+function validateAnswers(){
+    for(const answer of newAnswers.value){
+        if(answer.answer.trim() === ''){
+            return false;
+        }
+    }
+    return true;
+}
+
+function answerCount(){
+    if(newAnswers.length<4){
+        alert('Four answers are required');
+    }else if(newAnswers.length === 4){
+        return true;
+    }
+    return false;
+}
+function submitQuestion(){
+    if(!createdQuestion.value){
+        alert('Question cannot be empty');
+        return false;
+    }
+    if(!validateAnswers() && !answerCount()){
+        alert('Fill all inputs before submitting');
+        return false
+    }
+    router.post('/questions', {
+        question: createdQuestion.value,
+        answers: newAnswers.value
+    })
 }
 
 </script>
@@ -76,7 +108,7 @@ function handleRadioToggle(Id){
                 <template #footer>
                     <span @click="addNewAnswer" v-if="newAnswers.length<4"><h3>+</h3></span>
                     <button @click="destroyModal" class="btn btn-danger">Close</button>
-                    <button v-if="newAnswers.length>3" class="btn btn-success">Submit</button>
+                    <button @click="submitQuestion" v-if="newAnswers.length>3" class="btn btn-success">Submit</button>
                 </template>
             </NewQuestionModal>
         </Teleport>
