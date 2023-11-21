@@ -3,6 +3,11 @@ import Layout from '@/Shared/Layout.vue'
 import NewQuestionModal from './NewQuestionModal.vue';
 import { ref } from 'vue';
 const showNewQuestionModal = ref(false);
+const createdQuestion=ref(null);
+const newAnswers = ref([]);
+const selectedanswer = ref(null);
+
+let answerId = 1;
 
 function createQuestion() {
     showNewQuestionModal.value = true;
@@ -10,6 +15,26 @@ function createQuestion() {
 
 function destroyModal() {
     showNewQuestionModal.value = false;
+}
+
+function addNewAnswer(){
+    const newAnswer ={
+        id: answerId++,
+        answer: '',
+        correct_answer: 0
+    }
+
+    newAnswers.value.push(newAnswer)
+}
+function handleRadioToggle(Id){
+    selectedanswer.value = Id;
+    newAnswers.value.forEach((answer)=>{
+        if(answer.id === Id){
+            answer.correct_answer = 1;
+        }else{
+            answer.correct_answer = 0;
+        }
+    })  
 }
 
 </script>
@@ -27,7 +52,7 @@ function destroyModal() {
                     <form>
                         <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Question</label>
-                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                            <input type="text" v-model="createdQuestion" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
                         </div>
                         <table class="table">
                             <thead>
@@ -38,11 +63,10 @@ function destroyModal() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <th scope="row">1</th>
-
-                                    <td><input type="text" class="form-control" id="answer" placeholder="Enter answer"></td>
-                                    <td><input type="radio"></td>
+                                <tr v-for="(answer, index) in newAnswers">
+                                    <th scope="row">{{answer.id}}</th>
+                                    <td><input type="text" v-model="answer.answer" class="form-control" id="answer" placeholder="Enter answer"></td>
+                                    <td><input :checked="answer.correct_answer === 1" class="form-check-input" :value="answer.id" @change="handleRadioToggle(answer.id)" type="radio"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -50,7 +74,9 @@ function destroyModal() {
 
                 </template>
                 <template #footer>
-                    <button class="btn btn-primary">Save</button>
+                    <span @click="addNewAnswer" v-if="newAnswers.length<4"><h3>+</h3></span>
+                    <button @click="destroyModal" class="btn btn-danger">Close</button>
+                    <button v-if="newAnswers.length>3" class="btn btn-success">Submit</button>
                 </template>
             </NewQuestionModal>
         </Teleport>
