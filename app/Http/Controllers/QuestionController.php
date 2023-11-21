@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Answer;
 
 class QuestionController extends Controller
 {
@@ -13,7 +14,8 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Questions');
+        $questions = Question::with('answers')->get();
+        return Inertia::render('Questions', ['questions' => $questions]);
     }
 
     /**
@@ -29,7 +31,25 @@ class QuestionController extends Controller
      */
     public function store(Request $request)
     {
-        return $request->all();
+        $requestdata = $request->all();
+        $question = $requestdata['question'];
+
+        //this code gone save the question in the database
+        $newQuestion = new Question();
+        $newQuestion->question = $question;
+        $newQuestion->save();
+
+        $answers = $requestdata['answers'];
+        foreach ($answers as $answer) {
+            $newAnswer = new Answer();
+            $newAnswer->answer = $answer['answer'];
+            $newAnswer->question_id = $newQuestion->id;
+            $newAnswer->correct_answer = $answer['correct_answer'];
+            $newAnswer->save();
+        }
+
+        return redirect('/questions')->with('success', 'Question and answer created successfully');
+
     }
 
     /**

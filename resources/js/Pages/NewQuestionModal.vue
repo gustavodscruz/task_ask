@@ -10,6 +10,7 @@ const props = defineProps({
       <div class="modal-container">
         <div class="modal-header">
           <slot name="header">default header</slot>
+          <slot name="success"></slot>
         </div>
 
         <div class="modal-body">
