@@ -11,7 +11,7 @@ const showNewQuestionModal = ref(false);
 const showViewQuestionModal = ref(false);
 const createdQuestion = ref(null);
 const newAnswers = ref([]);
-const answers = ref(null);
+const answers = ref([]);
 const selectedQuestion = ref(null);
 const selectedanswer = ref(null);
 
@@ -104,6 +104,24 @@ function editAnswer(Id) {
     })
 }
 
+function updateAnswers() {
+    router.put('/answers', {
+        answers: answers.value,
+    })
+}
+
+const editQuestionModal = ref(false);
+const questionForEdit = ref(null);
+function editQuestion(index){
+    questionForEdit.value = props.questions[index];
+}
+function updateQuestion(){
+    router.put('/questions', {
+        question: questionForEdit.value,
+    })
+
+}
+
 </script>
 <template>
     <Layout>
@@ -123,7 +141,7 @@ function editAnswer(Id) {
                     <td>{{ question.question }}</td>
                     <td>
                         <button @click="viewQuestion(index)" class="btn btn-primary">View</button>
-                        <button class="btn btn-success">Edit</button>
+                        <button @click="editQuestionModal = true, editQuestionModal(index)" class="btn btn-success">Edit</button>
                         <button class="btn btn-danger">Delete</button>
                     </td>
                     <td>@mdo</td>
@@ -179,23 +197,45 @@ function editAnswer(Id) {
                 <template #header>
                     <h3>View Question/Answers</h3>
                 </template>
+                <template $success>
+                    <div v-if="success" class="alert alert-sucess">{{ success }}</div>
+                </template>
                 <template #body>
                     <p><strong>Q.{{ selectedQuestion.questions }}</strong></p>
                     <table class="table">
-                    <tbody>
-                        <tr v-for="(answer, index) in answers">
-                            <th scope="row">{{ index+1 }}</th>
-                            <td><input type="text" v-model="answer.answer" class="form-control" id="answer"
-                                    placeholder="Enter answer"></td>
-                            <td><input :checked="answer.correct_answer === 1" class="form-check-input" :value="answer.id"
-                                    @change="handleRadioToggle(answer.id)" type="radio"></td>
-                        </tr>
-                    </tbody>
+                        <tbody>
+                            <tr v-for="(answer, index) in answers">
+                                <th scope="row">{{ index + 1 }}</th>
+                                <td><input type="text" v-model="answer.answer" class="form-control" id="answer"
+                                        placeholder="Enter answer"></td>
+                                <td><input :checked="answer.correct_answer === 1" class="form-check-input"
+                                        :value="answer.id" @change="handleRadioToggle(answer.id)" type="radio"></td>
+                            </tr>
+                        </tbody>
                     </table>
                 </template>
                 <template #footer>
                     <button @click="destroyModal" class="btn btn-danger">Close</button>
-                    <button class="btn btn-success">Save</button>
+                    <button @click="updateAnswers" class="btn btn-success">Save</button>
+                </template>
+            </NewQuestionModal>
+            <NewQuestionModal :show="editQuestionModal" @click="editQuestionModal = false">
+                <template #header>
+                    <h3>Edit Question</h3>
+                </template>
+                <template #success>
+                    <div v-if="success" class="alert alert-sucess">{{ success }}</div>
+                </template>
+                <template #body>
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Question</label>
+                        <input v-model="questionForEdit.question" type="email" class="form-control" id="exampleFormControlInput1"
+                            placeholder="name@example.com">
+                    </div>
+                </template>
+                <template #footer>
+                    <button @click="editQuestionModal=false" class="btn btn-danger">Close</button>
+                    <button @click="updateQuestion" class="btn btn-success">Update</button>
                 </template>
             </NewQuestionModal>
 

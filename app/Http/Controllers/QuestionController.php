@@ -73,7 +73,9 @@ class QuestionController extends Controller
      */
     public function update(Request $request, Question $question)
     {
-        //
+        $id = $request['id'];
+        $editQuestion = Question::findOrFail($id);
+        return $request['question'];
     }
 
     /**
